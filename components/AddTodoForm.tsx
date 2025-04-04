@@ -25,8 +25,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { createTodoActions } from "@/actions/todo.actions";
 import { Checkbox } from "./ui/checkbox";
+import { useState } from "react";
+import Spinner from "./Spinner";
 
 export default function AddTodoForm() {
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+
   const form = useForm<TodoFormSchema>({
     resolver: zodResolver(todoFormSchema),
     defaultValues: {
@@ -37,10 +42,13 @@ export default function AddTodoForm() {
   });
 
   const onSubmit = async (data: TodoFormSchema) => {
+    setLoading(true);
     await createTodoActions(data);
+    setLoading(false);
+    setOpen(false);
   };
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
           {" "}
@@ -102,7 +110,9 @@ export default function AddTodoForm() {
                   </FormItem>
                 )}
               />
-              <Button type="submit">Add Todo</Button>
+              <Button type="submit" disabled={loading}>
+                {loading ? <Spinner /> : "Add Todo"}
+              </Button>
             </form>
           </Form>
         </div>

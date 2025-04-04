@@ -17,6 +17,7 @@ import { z } from "zod";
       .optional(),
     completed: z
       .boolean()
+      .optional(),
   });
 
   export type TodoFormSchema = z.infer<typeof todoFormSchema>;
