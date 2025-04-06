@@ -26,10 +26,10 @@ import { useForm } from "react-hook-form";
 import { Checkbox } from "./ui/checkbox";
 import { useState } from "react";
 import Spinner from "./Spinner";
-import { Todo } from "@prisma/client";
+import { ITodo } from "@/interface";
 import { updateTodoActions } from "@/actions/todo.actions";
 
-export default function EditTodoForm({ todo }: { todo: Todo }) {
+export default function EditTodoForm({ todo }: { todo: ITodo }) {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 

@@ -6,9 +6,9 @@ import { Trash } from "lucide-react";
 import { Button } from "./ui/button";
 import { deleteTodoActions } from "@/actions/todo.actions";
 import EditTodoForm from "./EditTodoForm";
-import { Todo } from "@prisma/client";
+import { ITodo } from "@/interface";
 
-export default function TodoTableActions({ todo }: { todo: Todo }) {
+export default function TodoTableActions({ todo }: { todo: ITodo }) {
   // handel Delete
   const onDelete = async (id: string) => {
     setLoading(true);
@@ -23,7 +23,7 @@ export default function TodoTableActions({ todo }: { todo: Todo }) {
       <Button
         size={"icon"}
         variant={"destructive"}
-        onClick={() => onDelete(todo.id)}
+        onClick={() => onDelete(todo.id!)}
       >
         {loading ? <Spinner /> : <Trash />}
       </Button>

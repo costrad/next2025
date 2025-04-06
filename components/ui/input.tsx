@@ -1,9 +1,6 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import { getTodoListActions } from "@/actions/todo.actions";
-import AddTodoForm from "../AddTodoForm";
-import TodosTable from "../TodoTable";
 
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
@@ -22,12 +19,3 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
 }
 
 export { Input };
-export default async function Home() {
-  const todos = await getTodoListActions();
-  return (
-    <main className="container py-4 px-4 mx-auto">
-      <AddTodoForm />
-      <TodosTable todos={todos} />
-    </main>
-  );
-}
