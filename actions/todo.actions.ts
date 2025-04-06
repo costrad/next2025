@@ -1,34 +1,57 @@
 'use server'
 
 import { ITodo } from "@/interface";
-import { TodoFormSchema } from "@/schema";
 import { PrismaClient } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 
 const prisma = new PrismaClient();
 
-export const getTodoListActions = async () => {
-  return await prisma.todo.findMany({
-    orderBy: {
-      createdAt: "desc"
-    }
-  })
+export const getTodoListActions = async ({ userId }: { userId: string | null }): Promise<Array<ITodo>> => {
+  try {
+    return await prisma.todo.findMany({
+      where: {
+        userId: userId as string,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  } catch (error) {
+    throw new Error("Something went wrong" + error);
+  }
+};
 
-  // Error Handling
-  
-}
-export const createTodoActions = async ({ title, body, completed }: TodoFormSchema) => {
-  await prisma.todo.create({
-    data: {
-      title,
-      body,
-      completed
-    }
-  });
 
-  revalidatePath("/");
-}
+
+export const createTodoActions = async ({
+  title,
+  body,
+  completed,
+  userId,
+}: {
+  title: string;
+  body?: string | undefined;
+  completed: boolean;
+  userId: string | null;
+}): Promise<void> => {
+  try {
+    await prisma.todo.create({
+      data: {
+        title,
+        body,
+        completed,
+        userId: userId as string,
+      },
+    });
+
+    revalidatePath("/");
+  } catch (error) {
+    throw new Error("Something went wrong" + error);
+  }
+};
+
+
 export const deleteTodoActions = async ({id} : {id: string}) => {
   await prisma.todo.delete({
     where: {

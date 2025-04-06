@@ -28,7 +28,7 @@ import { Checkbox } from "./ui/checkbox";
 import { useState } from "react";
 import Spinner from "./Spinner";
 
-export default function AddTodoForm() {
+export default function AddTodoForm({ userId }: { userId: string | null }) {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -41,12 +41,13 @@ export default function AddTodoForm() {
     },
   });
 
-  const onSubmit = async (data: TodoFormSchema) => {
+  const onSubmit = async ({ title, body, completed }: TodoFormSchema) => {
     setLoading(true);
-    await createTodoActions(data);
+    await createTodoActions({ title, body, completed, userId });
     setLoading(false);
     setOpen(false);
   };
+  console.log(userId);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>

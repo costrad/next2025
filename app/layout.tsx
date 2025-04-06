@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
-import { ModeToggle } from "@/components/ModeToggle";
+import { ClerkProvider, RedirectToSignIn, SignedOut } from "@clerk/nextjs";
+import Nav from "@/components/Nav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,19 +28,24 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
+      <ClerkProvider>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          <ModeToggle />
-          {children}
-        </ThemeProvider>
-      </body>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Nav />
+            {children}
+            <SignedOut>
+              <RedirectToSignIn redirectUrl="/sign-in" />
+            </SignedOut>
+          </ThemeProvider>
+        </body>
+      </ClerkProvider>
     </html>
   );
 }
