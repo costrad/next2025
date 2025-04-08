@@ -16,8 +16,8 @@ export default async function Home() {
     );
   }
   return (
-    <>
+    <div className="flex items-center justify-center">
       <p>you need to be logged in to see your todos</p>
-    </>
+    </div>
   );
 }
