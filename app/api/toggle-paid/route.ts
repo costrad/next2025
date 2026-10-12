@@ -5,6 +5,7 @@ import { formatAccraDate, formatTime } from "@/lib/date";
 import { FIRSTAcceptanceEmail } from "@/lib/email/first-acceptance-email";
 import { IEAAcceptanceEmail } from "@/lib/email/iea-acceptance-email";
 import { InstituteAcceptanceEmail } from "@/lib/email/institute-acceptance-email";
+import { MOCIAcceptanceEmail } from "@/lib/email/moci-acceptance-email";
 import { sendMail } from "@/lib/nodemailer-mail";
 import { prisma } from "@/prisma/dbConnect";
 
@@ -69,8 +70,10 @@ export async function POST(req: NextRequest) {
 					registration.edition?.institute?.acronym?.toLowerCase();
 				const isFIRST = acronymLower === "first";
 				const isIEA = acronymLower === "iea";
+				const isMOCI = acronymLower === "moci";
 				console.log("[toggle-paid] Is FIRST edition:", isFIRST);
 				console.log("[toggle-paid] Is IEA edition:", isIEA);
+				console.log("[toggle-paid] Is MOCI edition:", isMOCI);
 
 				const formattedStartDate = formatAccraDate(
 					registration.edition?.startDate,
@@ -122,6 +125,19 @@ export async function POST(req: NextRequest) {
 							}),
 						);
 						subject = `Your Acceptance & Zoom Access Pass: IEA ${new Date().getFullYear()}`;
+					} else if (isMOCI) {
+						console.log("[toggle-paid] Rendering MOCIAcceptanceEmail");
+						htmlContent = await render(
+							MOCIAcceptanceEmail({
+								name: userName,
+								startDate: formattedStartDate,
+								endDate: formattedEndDate,
+								startTime: formattedStartTime,
+								endTime: formattedEndTime,
+								theme: registration.edition?.theme ?? undefined,
+							}),
+						);
+						subject = `Your Acceptance & Zoom Access Pass: MOCI ${new Date().getFullYear()}`;
 					} else {
 						const instituteName =
 							registration.edition?.institute?.name || "Institute";
