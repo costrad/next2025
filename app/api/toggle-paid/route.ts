@@ -5,6 +5,7 @@ import { formatAccraDate, formatTime } from "@/lib/date";
 import { FIRSTAcceptanceEmail } from "@/lib/email/first-acceptance-email";
 import { IEAAcceptanceEmail } from "@/lib/email/iea-acceptance-email";
 import { InstituteAcceptanceEmail } from "@/lib/email/institute-acceptance-email";
+import { IOASCAcceptanceEmail } from "@/lib/email/ioasc-acceptance-email";
 import { MOCIAcceptanceEmail } from "@/lib/email/moci-acceptance-email";
 import { sendMail } from "@/lib/nodemailer-mail";
 import { prisma } from "@/prisma/dbConnect";
@@ -71,9 +72,11 @@ export async function POST(req: NextRequest) {
 				const isFIRST = acronymLower === "first";
 				const isIEA = acronymLower === "iea";
 				const isMOCI = acronymLower === "moci";
+				const isIOASC = acronymLower === "ioasc";
 				console.log("[toggle-paid] Is FIRST edition:", isFIRST);
 				console.log("[toggle-paid] Is IEA edition:", isIEA);
 				console.log("[toggle-paid] Is MOCI edition:", isMOCI);
+				console.log("[toggle-paid] Is IOASC edition:", isIOASC);
 
 				const formattedStartDate = formatAccraDate(
 					registration.edition?.startDate,
@@ -138,6 +141,19 @@ export async function POST(req: NextRequest) {
 							}),
 						);
 						subject = `Your Acceptance & Zoom Access Pass: MOCI ${new Date().getFullYear()}`;
+					} else if (isIOASC) {
+						console.log("[toggle-paid] Rendering IOASCAcceptanceEmail");
+						htmlContent = await render(
+							IOASCAcceptanceEmail({
+								name: userName,
+								startDate: formattedStartDate,
+								endDate: formattedEndDate,
+								startTime: formattedStartTime,
+								endTime: formattedEndTime,
+								theme: registration.edition?.theme ?? undefined,
+							}),
+						);
+						subject = `Your Acceptance & Zoom Access Pass: IOASC ${new Date().getFullYear()}`;
 					} else {
 						const instituteName =
 							registration.edition?.institute?.name || "Institute";
