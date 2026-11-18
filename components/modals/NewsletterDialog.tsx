@@ -1,6 +1,7 @@
 "use client";
-import { Turnstile } from "@marsidev/react-turnstile"; // Add this if not already
-import { useState } from "react";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile"; // Add this if not already
+import { RotateCcw } from "lucide-react";
+import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,13 @@ export function NewsletterDialog() {
 	const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 	const [turnstileStatus, setTurnstileStatus] = useState("required");
 	const [error, setError] = useState<string | null>(null);
+	const turnstileRef = useRef<TurnstileInstance>(null);
+
+	const handleTurnstileRetry = () => {
+		setError(null);
+		setTurnstileStatus("required");
+		turnstileRef.current?.reset();
+	};
 
 	const {
 		register,
@@ -130,6 +138,7 @@ export function NewsletterDialog() {
 
 					<div>
 						<Turnstile
+							ref={turnstileRef}
 							siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
 							options={{ theme: "auto", size: "flexible" }} // Customize the widget's theme (dark mode in this case)
 							onError={() => {
@@ -179,7 +188,21 @@ export function NewsletterDialog() {
 					</Label>
 
 					{error && (
-						<div className="text-red-500 text-sm mt-2 text-center">{error}</div>
+						<div className="space-y-2 text-center">
+							<div className="text-red-500 text-sm mt-2">{error}</div>
+							{turnstileStatus === "error" && (
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									onClick={handleTurnstileRetry}
+									className="gap-2"
+								>
+									<RotateCcw className="size-3.5" />
+									Retry verification
+								</Button>
+							)}
+						</div>
 					)}
 					<DialogFooter className="w-full mt-4 grid sm:grid-cols-2 gap-2">
 						<DialogClose asChild>

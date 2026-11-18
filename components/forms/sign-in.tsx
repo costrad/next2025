@@ -1,11 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Turnstile } from "@marsidev/react-turnstile";
-import { Loader2 } from "lucide-react";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
+import { Loader2, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -61,6 +61,13 @@ export default function SignInComponent({
 	const [turnstileStatus, setTurnstileStatus] = useState("required");
 	const [turnstileError, setTurnstileError] = useState<string | null>(null);
 	const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+	const turnstileRef = useRef<TurnstileInstance>(null);
+
+	const handleTurnstileRetry = () => {
+		setTurnstileError(null);
+		setTurnstileStatus("required");
+		turnstileRef.current?.reset();
+	};
 
 	const callbackUrl =
 		costradCallbackUrl || searchParams.get("callbackUrl") || "/";
@@ -286,6 +293,7 @@ export default function SignInComponent({
 
 						<div className="py-2">
 							<Turnstile
+								ref={turnstileRef}
 								siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
 								options={{ theme: "auto", size: "flexible" }}
 								onError={() => {
@@ -308,9 +316,23 @@ export default function SignInComponent({
 						</div>
 
 						{turnstileError && (
-							<p className="text-destructive text-sm text-center font-medium">
-								{turnstileError}
-							</p>
+							<div className="space-y-2 text-center">
+								<p className="text-destructive text-sm font-medium">
+									{turnstileError}
+								</p>
+								{turnstileStatus === "error" && (
+									<Button
+										type="button"
+										variant="outline"
+										size="sm"
+										onClick={handleTurnstileRetry}
+										className="gap-2"
+									>
+										<RotateCcw className="size-3.5" />
+										Retry verification
+									</Button>
+								)}
+							</div>
 						)}
 
 						<Button

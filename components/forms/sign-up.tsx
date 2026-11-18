@@ -1,12 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Turnstile } from "@marsidev/react-turnstile";
-import { Loader2, X } from "lucide-react";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
+import { Loader2, RotateCcw, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -64,6 +64,13 @@ export function SignUpComponent({
 	const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 	const [turnstileStatus, setTurnstileStatus] = useState("required");
 	const [error, setFormError] = useState<string | null>(null);
+	const turnstileRef = useRef<TurnstileInstance>(null);
+
+	const handleTurnstileRetry = () => {
+		setFormError(null);
+		setTurnstileStatus("required");
+		turnstileRef.current?.reset();
+	};
 
 	const form = useForm<FormValues>({
 		resolver: zodResolver(signUpSchema),
@@ -279,6 +286,7 @@ export function SignUpComponent({
 
 						<div className="py-2">
 							<Turnstile
+								ref={turnstileRef}
 								siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
 								options={{ theme: "auto", size: "flexible" }}
 								onError={() => {
@@ -301,9 +309,21 @@ export function SignUpComponent({
 						</div>
 
 						{error && (
-							<p className="text-destructive text-sm text-center font-medium">
-								{error}
-							</p>
+							<div className="space-y-2 text-center">
+								<p className="text-destructive text-sm font-medium">{error}</p>
+								{turnstileStatus === "error" && (
+									<Button
+										type="button"
+										variant="outline"
+										size="sm"
+										onClick={handleTurnstileRetry}
+										className="gap-2"
+									>
+										<RotateCcw className="size-3.5" />
+										Retry verification
+									</Button>
+								)}
+							</div>
 						)}
 
 						<Button

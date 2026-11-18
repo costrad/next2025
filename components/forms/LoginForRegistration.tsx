@@ -1,10 +1,10 @@
 "use client";
 
-import { Turnstile } from "@marsidev/react-turnstile";
-import { Loader2 } from "lucide-react";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
+import { Loader2, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,8 +42,15 @@ export default function LoginForRegistration({
 	const { close } = useDialog(); // Works because DialogProvider is an ancestor
 
 	const [turnstileStatus, setTurnstileStatus] = useState("required"); // Track Turnstile widget status
-	const [_error, setError] = useState<string | null>(null); // Store any error messages to display
+	const [error, setError] = useState<string | null>(null); // Store any error messages to display
 	const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+	const turnstileRef = useRef<TurnstileInstance>(null);
+
+	const handleTurnstileRetry = () => {
+		setError(null);
+		setTurnstileStatus("required");
+		turnstileRef.current?.reset();
+	};
 
 	// Fallback to URL param or "/"
 	const callbackUrl =
@@ -227,6 +234,7 @@ export default function LoginForRegistration({
 					</div>
 					<div>
 						<Turnstile
+							ref={turnstileRef}
 							siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""} // Use the site key from environment variables, fallback to empty string
 							options={{ theme: "auto", size: "flexible" }} // Customize the widget's theme (dark mode in this case)
 							// Triggered when there's an error with Turnstile (e.g., user fails the challenge)
@@ -252,6 +260,23 @@ export default function LoginForRegistration({
 							}}
 						/>
 					</div>
+					{error && (
+						<div className="space-y-2 py-2 text-center">
+							<p className="text-destructive text-sm font-medium">{error}</p>
+							{turnstileStatus === "error" && (
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									onClick={handleTurnstileRetry}
+									className="gap-2"
+								>
+									<RotateCcw className="size-3.5" />
+									Retry verification
+								</Button>
+							)}
+						</div>
+					)}
 					<Button
 						disabled={turnstileStatus !== "success"}
 						type="submit"
