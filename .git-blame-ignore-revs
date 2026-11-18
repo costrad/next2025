@@ -1,0 +1,5 @@
+# Commits listed here are skipped by `git blame` (and `git log -L`).
+# Enable locally with:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+# Whitespace-only reformatting; no behavioural change.
+10ecc4851f2b3fb59d3c9c678171bcf8b401b872
